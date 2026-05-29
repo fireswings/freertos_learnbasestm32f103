@@ -29,19 +29,24 @@ extern "C" {
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
-
+#include <stdio.h>
 /* USER CODE END Includes */
 
 extern UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN Private defines */
-
+#define USART1_RX_BUF_SIZE 256
+extern volatile uint8_t uart1_rx_buf[USART1_RX_BUF_SIZE];
+extern volatile uint8_t uart1_rx_flag;
 /* USER CODE END Private defines */
 
 void MX_USART1_UART_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-
+void USART1_StartRx(void);
+uint8_t uart1_data_ready(void);
+int uart1_available(void);
+int uart1_getchar(void);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

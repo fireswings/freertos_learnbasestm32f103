@@ -19,9 +19,80 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "usart.h"
+#include "cmsis_os.h"
 
 /* USER CODE BEGIN 0 */
+volatile uint8_t uart1_rx_buf[USART1_RX_BUF_SIZE];
+volatile uint8_t uart1_rx_flag = 0;
+static volatile uint16_t rx_idx = 0;
+static volatile uint16_t rd_idx = 0;
+static uint8_t rx_byte;
 
+void USART1_StartRx(void)
+{
+    uart1_rx_flag = 0;
+    rx_idx = 0;
+    rd_idx = 0;
+    HAL_UART_Receive_IT(&huart1, &rx_byte, 1);
+}
+
+uint8_t uart1_data_ready(void)
+{
+    return uart1_rx_flag;
+}
+
+int uart1_available(void)
+{
+    return (rx_idx > rd_idx) || uart1_rx_flag;
+}
+
+int uart1_getchar(void)
+{
+    while (!uart1_available())
+        osDelay(1);
+    return uart1_rx_buf[rd_idx++];
+}
+
+int __io_putchar(int ch)
+{
+    HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
+    return ch;
+}
+
+int __io_getchar(void)
+{
+    return uart1_getchar();
+}
+
+int _write(int file, char *ptr, int len)
+{
+    HAL_UART_Transmit(&huart1, (uint8_t *)ptr, len, HAL_MAX_DELAY);
+    return len;
+}
+
+int _read(int file, char *ptr, int len)
+{
+    for (int i = 0; i < len; i++)
+        ptr[i] = __io_getchar();
+    return len;
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+    if (huart->Instance == USART1)
+    {
+        if (!uart1_rx_flag && rx_idx < USART1_RX_BUF_SIZE - 1)
+        {
+            uart1_rx_buf[rx_idx++] = rx_byte;
+            if (rx_byte == '\n' || rx_idx >= USART1_RX_BUF_SIZE - 1)
+            {
+                uart1_rx_buf[rx_idx] = '\0';
+                uart1_rx_flag = 1;
+            }
+        }
+        HAL_UART_Receive_IT(&huart1, &rx_byte, 1);
+    }
+}
 /* USER CODE END 0 */
 
 UART_HandleTypeDef huart1;
@@ -51,7 +122,7 @@ void MX_USART1_UART_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN USART1_Init 2 */
-
+  USART1_StartRx();
   /* USER CODE END USART1_Init 2 */
 
 }
