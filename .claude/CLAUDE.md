@@ -23,12 +23,14 @@
 - led1Task: (待开发)
 - keyTask: 按键处理(每10ms轮询)
 - tempTask: DS18B20温度采集(每2s读取，通过串口输出)
+- lcdTask: LCD显示(FSMC控制，显示运行信息)
 
 ## 外设
 - 按键: KEY0(PE4), KEY1(PE3), KEY_UP(PA0)
 - LED: LED0(PB5), LED1(PE5)
 - USART1: PA9(TX), PA10(RX) — printf重定向, 中断接收(256字节线性缓冲)
 - 1-Wire: PG11 — DS18B20/DHT11 温度传感器
+- TFT: PG12(NE4/CS), PG0(A10/RS), PD5(WR), PD4(RD), PB0(BL) — FSMC 16位 8080接口
 - CAN: PA11(RX), PA12(TX) — CAN通信，中断接收(16条环形缓冲)
 - USART2: PA2/RX(485_RX), PA3/TX(485_TX)
 
@@ -36,16 +38,18 @@
 | 模块 | 文件 | 接口 |
 |------|------|------|
 | 按键 | key.h/c | `Key_Process()` |
-| 1-Wire总线 | onewire.h/c | `OW_Init()`, `OW_DelayUs()`, `OW_Reset()`, `OW_WriteByte()`, `OW_ReadByte()` |
+| 1-Wire总线 | onewire.h/c | `DWT_InitUs()` (static inline), `OW_DelayUs()`, `OW_Init()`, `OW_Reset()`, `OW_WriteByte()`, `OW_ReadByte()` |
 | DS18B20 | ds18b20.h/c | `DS18B20_Init()`, `DS18B20_StartConversion()`, `DS18B20_ReadTemp()` → float |
 | DHT11 | dht11.h/c | `DHT11_Init()`, `DHT11_Read(DHT11_Data*)` → temp/humidity |
 | CAN | can_drv.h/c | `CAN_DRV_Init(baudrate)`, `CAN_DRV_SendMsg()`, `CAN_DRV_RecvMsg()`, `CAN_DRV_AvailMsg()` |
+| TFT LCD | lcd.h/c + lcd_ex.h/c | `lcd_init()`, 画点/画线/矩形/圆形/字符/字符串/数字，支持7种IC驱动 |
 | 串口 | usart.h/c | printf重定向, `uart1_data_ready()`, 回显 |
 
 ## 应用层模块
 | 模块 | 文件 | 说明 |
 |------|------|------|
 | 温度采集 | app_temp.h/c | `StartTempTask` — 自动检测 DS18B20/DHT11，每2s读取并通过printf输出 |
+| LCD显示 | app_lcd.h/c | `StartLcdTask` — 初始化LCD，每1s刷新显示运行信息 |
 
 ## 串口API (usart.h/c)
 - printf() — 直接输出到USART1 (通过__io_putchar)

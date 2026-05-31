@@ -18,8 +18,8 @@ static uint8_t dht11_wait_high(uint16_t us)
 
 uint8_t DHT11_Init(void)
 {
-    OW_Init();  /* 复用 DS18B20 已有的 DWT 初始化 */
-    OW_HIGH();
+    DWT_InitUs();  /* ensure DWT cycle counter is running */
+    OW_HIGH();     /* release shared bus line */
     osDelay(1000);
     return 1;
 }

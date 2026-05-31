@@ -1,4 +1,5 @@
 #include "app_temp.h"
+#include "onewire.h"
 #include "ds18b20.h"
 #include "dht11.h"
 #include "cmsis_os.h"
@@ -12,6 +13,7 @@ void StartTempTask(void *argument)
     SensorType sensor = SENSOR_NONE;
     DHT11_Data dht11_data;
 
+    DWT_InitUs();
     OW_Init();
 
     /* 自动检测传感器类型 */

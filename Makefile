@@ -42,6 +42,8 @@ Core/Src/stm32f1xx_hal_msp.c \
 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio_ex.c \
 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c \
 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_can.c \
+Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_sram.c \
+Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_ll_fsmc.c \
 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.c \
 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c \
 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc_ex.c \
@@ -59,7 +61,10 @@ Core/Src/onewire.c \
 Core/Src/ds18b20.c \
 Core/Src/dht11.c \
 Core/Src/app_temp.c \
+Core/Src/app_lcd.c \
 Core/Src/can_drv.c \
+Core/Src/lcd.c \
+Core/Src/lcd_ex.c \
 Core/Src/usart.c \
 Core/Src/freertos.c \
 Core/Src/stm32f1xx_hal_timebase_tim.c \

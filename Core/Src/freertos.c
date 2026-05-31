@@ -28,6 +28,7 @@
 #include "key.h"
 #include "usart.h"
 #include "app_temp.h"
+#include "app_lcd.h"
 #include <stdio.h>
 /* USER CODE END Includes */
 
@@ -78,6 +79,13 @@ const osThreadAttr_t tempTask_attributes = {
     .stack_size = 256 * 4,
     .priority = (osPriority_t)osPriorityLow,
 };
+/* Definitions for lcdTask */
+osThreadId_t lcdTaskHandle;
+const osThreadAttr_t lcdTask_attributes = {
+    .name = "lcdTask",
+    .stack_size = 512 * 4,
+    .priority = (osPriority_t)osPriorityNormal,
+};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -88,6 +96,7 @@ void StartDefaultTask(void *argument);
 void StartLed1Task(void *argument);
 void StartKeyTask(void *argument);
 void StartTempTask(void *argument);
+void StartLcdTask(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -130,6 +139,9 @@ void MX_FREERTOS_Init(void)
 
   /* creation of tempTask */
   tempTaskHandle = osThreadNew(StartTempTask, NULL, &tempTask_attributes);
+
+  /* creation of lcdTask */
+  lcdTaskHandle = osThreadNew(StartLcdTask, NULL, &lcdTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
