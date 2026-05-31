@@ -58,13 +58,7 @@ const osThreadAttr_t defaultTask_attributes = {
     .stack_size = 128 * 4,
     .priority = (osPriority_t)osPriorityNormal,
 };
-/* Definitions for led1Task */
-osThreadId_t led1TaskHandle;
-const osThreadAttr_t led1Task_attributes = {
-    .name = "led1Task",
-    .stack_size = 128 * 4,
-    .priority = (osPriority_t)osPriorityNormal,
-};
+
 /* Definitions for keyTask */
 osThreadId_t keyTaskHandle;
 const osThreadAttr_t keyTask_attributes = {
@@ -93,7 +87,6 @@ const osThreadAttr_t lcdTask_attributes = {
 /* USER CODE END FunctionPrototypes */
 
 void StartDefaultTask(void *argument);
-void StartLed1Task(void *argument);
 void StartKeyTask(void *argument);
 void StartTempTask(void *argument);
 void StartLcdTask(void *argument);
@@ -130,9 +123,6 @@ void MX_FREERTOS_Init(void)
   /* Create the thread(s) */
   /* creation of defaultTask */
   defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
-
-  /* creation of led1Task */
-  led1TaskHandle = osThreadNew(StartLed1Task, NULL, &led1Task_attributes);
 
   /* creation of keyTask */
   keyTaskHandle = osThreadNew(StartKeyTask, NULL, &keyTask_attributes);
@@ -181,24 +171,6 @@ void StartDefaultTask(void *argument)
     osDelay(200);
   }
   /* USER CODE END StartDefaultTask */
-}
-
-/* USER CODE BEGIN Header_StartLed1Task */
-/**
- * @brief  Function implementing the led1Task thread.
- * @param  argument: Not used
- * @retval None
- */
-/* USER CODE END Header_StartLed1Task */
-void StartLed1Task(void *argument)
-{
-  /* USER CODE BEGIN StartLed1Task */
-  /* Infinite loop */
-  for (;;)
-  {
-    osDelay(8); /* 循环间隔 */
-  }
-  /* USER CODE END StartLed1Task */
 }
 
 /* USER CODE BEGIN Header_StartKeyTask */
