@@ -29,6 +29,7 @@
 #include "usart.h"
 #include "app_temp.h"
 #include "app_lcd.h"
+#include "iwdg_drv.h"
 #include <stdio.h>
 /* USER CODE END Includes */
 
@@ -80,7 +81,6 @@ const osThreadAttr_t lcdTask_attributes = {
     .stack_size = 512 * 4,
     .priority = (osPriority_t)osPriorityNormal,
 };
-
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
 
@@ -152,23 +152,37 @@ void MX_FREERTOS_Init(void)
 void StartDefaultTask(void *argument)
 {
   /* USER CODE BEGIN StartDefaultTask */
-  setvbuf(stdout, NULL, _IONBF, 0); /* 关闭printf缓冲 */
+  IWDG_DRV_Feed(); /* feed as early as possible */
+  setvbuf(stdout, NULL, _IONBF, 0);
   printf("System initialized, FreeRTOS running!\r\n");
-  /* Infinite loop */
+
+  uint32_t led_last = osKernelGetTickCount();
+  uint32_t wdg_last = osKernelGetTickCount();
+  uint32_t now;
+
   for (;;)
   {
-    /* 串口回显 */
+    now = osKernelGetTickCount();
+
+    if (now - led_last >= 500)
+    {
+      HAL_GPIO_TogglePin(LED0_GPIO_Port, LED0_Pin);
+      led_last = now;
+    }
+
+    if (now - wdg_last >= 500)
+    {
+      IWDG_DRV_Feed();
+      wdg_last = now;
+    }
+
     if (uart1_data_ready())
     {
       printf("%s", (char *)uart1_rx_buf);
       USART1_StartRx();
     }
 
-    /* LED0 快闪指示系统运行 */
-    HAL_GPIO_WritePin(LED0_GPIO_Port, LED0_Pin, GPIO_PIN_RESET);
-    osDelay(200);
-    HAL_GPIO_WritePin(LED0_GPIO_Port, LED0_Pin, GPIO_PIN_SET);
-    osDelay(200);
+    osDelay(1); /* yield to scheduler */
   }
   /* USER CODE END StartDefaultTask */
 }

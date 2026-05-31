@@ -19,7 +19,7 @@
 - docs/  — 文档目录
 
 ## 已创建的任务 (freertos.c)
-- defaultTask: LED0快闪指示 + 串口回显
+- defaultTask: LED0快闪指示 + 串口回显 + 看门狗喂狗
 - led1Task: (待开发)
 - keyTask: 按键处理(每10ms轮询)
 - tempTask: DS18B20温度采集(每2s读取，通过串口输出)
@@ -43,6 +43,7 @@
 | DHT11 | dht11.h/c | `DHT11_Init()`, `DHT11_Read(DHT11_Data*)` → temp/humidity |
 | CAN | can_drv.h/c | `CAN_DRV_Init(baudrate)`, `CAN_DRV_SendMsg()`, `CAN_DRV_RecvMsg()`, `CAN_DRV_AvailMsg()` |
 | TFT LCD | lcd.h/c + lcd_ex.h/c | `lcd_init()`, 画点/画线/矩形/圆形/字符/字符串/数字，支持7种IC驱动 |
+| 独立看门狗 | iwdg_drv.h/c | `IWDG_DRV_Init()` (4s超时), `IWDG_DRV_Feed()` |
 | 串口 | usart.h/c | printf重定向, `uart1_data_ready()`, 回显 |
 
 ## 应用层模块
