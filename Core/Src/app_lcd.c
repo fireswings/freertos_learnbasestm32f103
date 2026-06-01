@@ -1,6 +1,7 @@
 #include "app_lcd.h"
 #include "lcd.h"
 #include "cmsis_os.h"
+#include "rtc_drv.h"
 #include <stdio.h>
 
 void StartLcdTask(void *argument)
@@ -23,8 +24,10 @@ void StartLcdTask(void *argument)
         lcd_show_string(10, y, 200, 16, 16, buf, BLACK);
         tick++;
 
-        /* 区域2: 显示温度 */
-        sprintf(buf, "Temp: N/A  ", tick);
+        /* 区域2: 显示RTC时间 */
+        uint8_t h, m, s;
+        RTC_DRV_GetTime(&h, &m, &s);
+        sprintf(buf, "Time: %02d:%02d:%02d", h, m, s);
         lcd_show_string(10, y + 20, 200, 16, 16, buf, BLACK);
 
         /* 区域3: 显示按键提示 */

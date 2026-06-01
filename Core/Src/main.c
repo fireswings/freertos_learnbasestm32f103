@@ -25,6 +25,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "iwdg_drv.h"
+#include "rtc_drv.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -93,7 +94,12 @@ int main(void)
   /* USER CODE BEGIN 2 */
   IWDG_DRV_Init(2); /* Start independent watchdog (2s timeout) */
   /* USER CODE END 2 */
-
+  /* RTC: only set time on first boot (backup domain lost) */
+  if (RTC_DRV_Init() != HAL_OK)
+  {
+    RTC_DRV_SetDate(26, 6, 1, 0); /* 2026-06-01 Sunday */
+    RTC_DRV_SetTime(21, 20, 0);   /* 21:18:00 */
+  }
   /* Init scheduler */
   osKernelInitialize();
 

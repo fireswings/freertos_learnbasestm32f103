@@ -32,7 +32,7 @@
 - 1-Wire: PG11 — DS18B20/DHT11 温度传感器
 - TFT: PG12(NE4/CS), PG0(A10/RS), PD5(WR), PD4(RD), PB0(BL) — FSMC 16位 8080接口
 - CAN: PA11(RX), PA12(TX) — CAN通信，中断接收(16条环形缓冲)
-- USART2: PA2/RX(485_RX), PA3/TX(485_TX)
+- RTC: PC14/PC15 (LSE 32.768kHz) — 实时时钟
 
 ## 驱动层模块
 | 模块 | 文件 | 接口 |
@@ -43,7 +43,8 @@
 | DHT11 | dht11.h/c | `DHT11_Init()`, `DHT11_Read(DHT11_Data*)` → temp/humidity |
 | CAN | can_drv.h/c | `CAN_DRV_Init(baudrate)`, `CAN_DRV_SendMsg()`, `CAN_DRV_RecvMsg()`, `CAN_DRV_AvailMsg()` |
 | TFT LCD | lcd.h/c + lcd_ex.h/c | `lcd_init()`, 画点/画线/矩形/圆形/字符/字符串/数字，支持7种IC驱动 |
-| 独立看门狗 | iwdg_drv.h/c | `IWDG_DRV_Init()` (4s超时), `IWDG_DRV_Feed()` |
+| 独立看门狗 | iwdg_drv.h/c | `IWDG_DRV_Init(timeout_s)` (参数化超时), `IWDG_DRV_Feed()` |
+| RTC | rtc_drv.h/c | `RTC_DRV_Init()`, `RTC_DRV_SetTime()`, `RTC_DRV_GetTime()`, `RTC_DRV_SetDate()`, `RTC_DRV_GetDate()` |
 | 串口 | usart.h/c | printf重定向, `uart1_data_ready()`, 回显 |
 
 ## 应用层模块

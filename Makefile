@@ -43,6 +43,8 @@ Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio_ex.c \
 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c \
 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_can.c \
 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_iwdg.c \
+Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rtc.c \
+Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rtc_ex.c \
 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_sram.c \
 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_ll_fsmc.c \
 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.c \
@@ -59,6 +61,7 @@ Core/Src/system_stm32f1xx.c \
 Core/Src/gpio.c \
 Core/Src/key.c \
 Core/Src/iwdg_drv.c \
+Core/Src/rtc_drv.c \
 Core/Src/onewire.c \
 Core/Src/ds18b20.c \
 Core/Src/dht11.c \
