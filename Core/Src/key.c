@@ -11,6 +11,7 @@
 #include "key.h"
 #include "gpio.h"
 #include "cmsis_os.h"
+#include "lcd.h"
 
 /* USER CODE BEGIN 0 */
 
@@ -34,6 +35,7 @@ void Key_Process(void)
 {
   /* USER CODE BEGIN Key_Process */
   static uint8_t key0_last = 1, key1_last = 1, key_up_last = 0;
+  static uint8_t lcd_state = 1;
   static uint32_t key0_tick = 0, key1_tick = 0, key_up_tick = 0;
 
   /* KEY0 — 按下翻转LED0 */
@@ -74,8 +76,20 @@ void Key_Process(void)
   {
     while (KEY_UP == KEY_UP_PRESS)
       osDelay(5);
-    HAL_GPIO_TogglePin(LED0_GPIO_Port, LED0_Pin);
-    HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
+    if(lcd_state)
+    {
+      LCD_BL(0);
+      osThreadSuspend(lcdTaskHandle);
+      lcd_display_off();
+      lcd_state = 0;
+    }
+    else
+    {
+      LCD_BL(1);
+      lcd_display_on();
+      osThreadResume(lcdTaskHandle);
+      lcd_state = 1;
+    }
     key_up_tick = HAL_GetTick();
   }
   /* USER CODE END Key_Process */
