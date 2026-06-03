@@ -8,7 +8,9 @@
             "defines": [
                 "_DEBUG",
                 "UNICODE",
-                "_UNICODE"
+                "_UNICODE",
+                "USE_HAL_DRIVER",
+                "STM32F103xE"
             ],
             "cStandard": "c17",
             "cppStandard": "gnu++14",

@@ -665,10 +665,10 @@ void lcd_show_char(uint16_t x, uint16_t y, char chr, uint8_t size, uint8_t mode,
 
     switch (size)
     {
-        case 12: pfont = (uint8_t *)asc2_1206[chr]; break;
-        case 16: pfont = (uint8_t *)asc2_1608[chr]; break;
-        case 24: pfont = (uint8_t *)asc2_2412[chr]; break;
-        case 32: pfont = (uint8_t *)asc2_3216[chr]; break;
+        case 12: pfont = (uint8_t *)asc2_1206[(uint8_t)chr]; break;
+        case 16: pfont = (uint8_t *)asc2_1608[(uint8_t)chr]; break;
+        case 24: pfont = (uint8_t *)asc2_2412[(uint8_t)chr]; break;
+        case 32: pfont = (uint8_t *)asc2_3216[(uint8_t)chr]; break;
         default: return;
     }
 

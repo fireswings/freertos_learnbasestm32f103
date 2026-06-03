@@ -1,0 +1,18 @@
+{
+    "files.associations": {
+        "*.tcc": "c",
+        "cmath": "c",
+        "type_traits": "c",
+        "cstdlib": "c",
+        "typeinfo": "c",
+        "task.h": "c",
+        "freertos.h": "c",
+        "cmsis_os.h": "c",
+        "main.h": "c",
+        "nrf24l01.h": "c",
+        "gpio.h": "c",
+        "key.h": "c",
+        "nrf24l01_reg.h": "c",
+        "spi.h": "c"
+    }
+}

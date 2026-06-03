@@ -30,6 +30,7 @@
 #include "app_temp.h"
 #include "app_lcd.h"
 #include "iwdg_drv.h"
+#include "cmsis_os2.h"
 #include <stdio.h>
 /* USER CODE END Includes */
 

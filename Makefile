@@ -71,6 +71,7 @@ Core/Src/can_drv.c \
 Core/Src/lcd.c \
 Core/Src/lcd_ex.c \
 Core/Src/usart.c \
+Core/Src/spi.c \
 Core/Src/freertos.c \
 Core/Src/stm32f1xx_hal_timebase_tim.c \
 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c \
