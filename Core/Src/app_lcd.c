@@ -2,11 +2,13 @@
 #include "lcd.h"
 #include "cmsis_os.h"
 #include "rtc_drv.h"
+#include "light_sensor.h"
 #include <stdio.h>
 
 void StartLcdTask(void *argument)
 {
     lcd_init();
+    LS_DRV_Init();
 
     printf("LCD ID: %04X, %dx%d\r\n", lcddev.id, lcddev.width, lcddev.height);
 
@@ -34,6 +36,10 @@ void StartLcdTask(void *argument)
         lcd_show_string(10, y + 50, 220, 16, 12, "KEY0:Toggle LED0", GRAYBLUE);
         lcd_show_string(10, y + 64, 220, 16, 12, "KEY1:Toggle LED1", GRAYBLUE);
         lcd_show_string(10, y + 78, 220, 16, 12, "KEY_UP:Toggle ALL", GRAYBLUE);
+
+        /* 区域4: 显示光敏电阻值 */
+        sprintf(buf, "Light: %d", LS_DRV_ReadPercent());
+        lcd_show_string(10, y + 92, 220, 16, 12, buf, BLACK);
 
         osDelay(1000);
     }

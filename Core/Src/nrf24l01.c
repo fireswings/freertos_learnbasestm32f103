@@ -34,12 +34,12 @@ void nrf24l01_gpio_init(void)
     HAL_GPIO_Init(NRF_IRQ_PORT, &gpio);
 }
 
-nrf24l01_init(void)
+void nrf24l01_init(void)
 {
     SPI_DRV_Init();
     nrf24l01_gpio_init();
     SPI_CE(0);
-    SPI_CS(1);
+    SPI_CS(1);      
 }
 
 
@@ -97,7 +97,7 @@ static uint8_t nrf24101_write_buf(uint8_t reg, uint8_t *pbuf, uint8_t len)
  * @param   无
  * @return  无
  */
-void nrf24l01_set_rx_mode(void)
+void nrf24l01_rx_mode(void)
 {
     SPI_CE(0);
     nrf24101_write_buf(NRF_WRITE_REG + RX_ADDR_P0, (uint8_t *)RX_ADDRESS,
@@ -151,18 +151,18 @@ uint8_t nrf24l01_tx_packet(uint8_t *ptxbuf)
     uint8_t sta;
     uint8_t rval = 0XFF;
     
-    NRF24L01_CE(0);
-    nrf24l01_write_buf(WR_TX_PLOAD, ptxbuf, TX_PLOAD_WIDTH);    /* 写数据到TX BUF  TX_PLOAD_WIDTH个字节 */
-    NRF24L01_CE(1); /* 启动发送 */
+    SPI_CE(0);
+    nrf24101_write_buf(WR_TX_PLOAD, ptxbuf, TX_PLOAD_WIDTH);    /* 写数据到TX BUF  TX_PLOAD_WIDTH个字节 */
+    SPI_CE(1); /* 启动发送 */
 
     while (NRF24L01_IRQ != 0);          /* 等待发送完成 */
 
-    sta = nrf24l01_read_reg(STATUS);    /* 读取状态寄存器的值 */
-    nrf24l01_write_reg(NRF_WRITE_REG + STATUS, sta);    /* 清除TX_DS或MAX_RT中断标志 */
+    sta = nrf24101_read_reg(STATUS);    /* 读取状态寄存器的值 */
+    nrf24101_write_reg(NRF_WRITE_REG + STATUS, sta);    /* 清除TX_DS或MAX_RT中断标志 */
 
     if (sta & MAX_TX)   /* 达到最大重发次数 */
     {
-        nrf24l01_write_reg(FLUSH_TX, 0xff); /* 清除TX FIFO寄存器 */
+        nrf24101_write_reg(FLUSH_TX, 0xff); /* 清除TX FIFO寄存器 */
         rval = 1;
     }
 
@@ -185,14 +185,19 @@ uint8_t nrf24l01_rx_packet(uint8_t *prxbuf)
 {
     uint8_t sta;
     uint8_t rval = 1;
-    
-    sta = nrf24l01_read_reg(STATUS); /* 读取状态寄存器的值 */
-    nrf24l01_write_reg(NRF_WRITE_REG + STATUS, sta); /* 清除RX_OK中断标志 */
+    SPI_CE(0);
+    nrf24101_write_reg(FLUSH_RX, 0xff); /* 清除RX FIFO寄存器 */
+    SPI_CE(1); /* 启动接收 */
+
+    while (NRF24L01_IRQ != 0);          /* 等待接收完成 */
+
+    sta = nrf24101_read_reg(STATUS); /* 读取状态寄存器的值 */
+    nrf24101_write_reg(NRF_WRITE_REG + STATUS, sta); /* 清除RX_OK中断标志 */
 
     if (sta & RX_OK)    /* 接收到数据 */
     {
-        nrf24l01_read_buf(RD_RX_PLOAD, prxbuf, RX_PLOAD_WIDTH); /* 读取数据 */
-        nrf24l01_write_reg(FLUSH_RX, 0xff); /* 清除RX FIFO寄存器 */
+        nrf24101_read_buf(RD_RX_PLOAD, prxbuf, RX_PLOAD_WIDTH); /* 读取数据 */  
+        nrf24101_write_reg(FLUSH_RX, 0xff); /* 清除RX FIFO寄存器 */
         rval = 0;       /* 标记接收完成 */
     }
 

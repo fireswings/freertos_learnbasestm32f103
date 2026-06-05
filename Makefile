@@ -57,6 +57,8 @@ Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_pwr.c \
 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_flash.c \
 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_flash_ex.c \
 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_exti.c \
+Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_adc.c \
+Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_adc_ex.c \
 Core/Src/system_stm32f1xx.c \
 Core/Src/gpio.c \
 Core/Src/key.c \
@@ -72,6 +74,8 @@ Core/Src/lcd.c \
 Core/Src/lcd_ex.c \
 Core/Src/usart.c \
 Core/Src/spi.c \
+Core/Src/light_sensor.c \
+Core/Src/nrf24l01.c \
 Core/Src/freertos.c \
 Core/Src/stm32f1xx_hal_timebase_tim.c \
 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c \

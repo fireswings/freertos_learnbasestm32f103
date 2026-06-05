@@ -13,6 +13,7 @@
         "gpio.h": "c",
         "key.h": "c",
         "nrf24l01_reg.h": "c",
-        "spi.h": "c"
+        "spi.h": "c",
+        "light_sensor.h": "c"
     }
 }

@@ -10,4 +10,10 @@
 #define NRF_IRQ_PIN         GPIO_PIN_6
 #define NRF_IRQ_PORT         GPIOG
 
+void nrf24l01_rx_mode(void);
+void nrf24l01_tx_mode(void);
+uint8_t nrf24l01_tx_packet(uint8_t *ptxbuf);
+uint8_t nrf24l01_rx_packet(uint8_t *prxbuf);
+
+
 #endif /* __NRF24L01_H__ */
