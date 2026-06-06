@@ -76,6 +76,7 @@ Core/Src/usart.c \
 Core/Src/spi.c \
 Core/Src/light_sensor.c \
 Core/Src/nrf24l01.c \
+Core/Src/breath_led.c \
 Core/Src/freertos.c \
 Core/Src/stm32f1xx_hal_timebase_tim.c \
 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c \

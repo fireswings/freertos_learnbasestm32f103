@@ -31,6 +31,7 @@
 #include "app_lcd.h"
 #include "iwdg_drv.h"
 #include "cmsis_os2.h"
+#include "breath_led.h"
 #include <stdio.h>
 /* USER CODE END Includes */
 
@@ -157,7 +158,10 @@ void StartDefaultTask(void *argument)
   setvbuf(stdout, NULL, _IONBF, 0);
   printf("System initialized, FreeRTOS running!\r\n");
 
-  uint32_t led_last = osKernelGetTickCount();
+  BL_Init();
+  BL_SetPeriod_ms(3000); /* 呼吸周期 2.5 秒 */
+  BL_SetGamma(0.8f);     /* gamma 校正 0.8 */
+  
   uint32_t wdg_last = osKernelGetTickCount();
   uint32_t now;
 
@@ -165,11 +169,8 @@ void StartDefaultTask(void *argument)
   {
     now = osKernelGetTickCount();
 
-    if (now - led_last >= 500)
-    {
-      HAL_GPIO_TogglePin(LED0_GPIO_Port, LED0_Pin);
-      led_last = now;
-    }
+    /* 每 10ms 更新呼吸灯，保证平滑过渡 */
+    BL_Process();
 
     if (now - wdg_last >= 500)
     {

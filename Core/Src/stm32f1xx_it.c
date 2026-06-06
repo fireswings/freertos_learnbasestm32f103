@@ -58,6 +58,7 @@
 /* External variables --------------------------------------------------------*/
 extern UART_HandleTypeDef huart1;
 extern TIM_HandleTypeDef htim4;
+extern TIM_HandleTypeDef htim3;
 
 /* USER CODE BEGIN EV */
 
@@ -190,6 +191,11 @@ void USART1_IRQHandler(void)
 }
 
 /* USER CODE BEGIN 1 */
+void TIM3_IRQHandler(void)
+{
+    HAL_TIM_IRQHandler(&htim3);
+}
+
 void USB_LP_CAN1_RX0_IRQHandler(void)
 {
     HAL_CAN_IRQHandler(&hcan);
