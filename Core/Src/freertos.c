@@ -32,6 +32,7 @@
 #include "iwdg_drv.h"
 #include "cmsis_os2.h"
 #include "breath_led.h"
+#include "app_eeprom.h"
 #include <stdio.h>
 /* USER CODE END Includes */
 
@@ -52,7 +53,15 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
+osMessageQueueId_t keyQueueHandle;
+osMessageQueueAttr_t keyQueue_attributes = {
+    .name = "keyQueue"
+};
 
+osMessageQueueId_t eepromQueueHandle;
+osMessageQueueAttr_t eepromQueue_attributes = {
+    .name = "eepromQueue"
+};
 /* USER CODE END Variables */
 /* Definitions for defaultTask */
 osThreadId_t defaultTaskHandle;
@@ -83,6 +92,13 @@ const osThreadAttr_t lcdTask_attributes = {
     .stack_size = 512 * 4,
     .priority = (osPriority_t)osPriorityNormal,
 };
+/* Definitions for eepromTask */
+osThreadId_t eepromTaskHandle;
+const osThreadAttr_t eepromTask_attributes = {
+    .name = "eepromTask",
+    .stack_size = 128 * 4,
+    .priority = (osPriority_t)osPriorityNormal,
+};
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
 
@@ -92,6 +108,7 @@ void StartDefaultTask(void *argument);
 void StartKeyTask(void *argument);
 void StartTempTask(void *argument);
 void StartLcdTask(void *argument);
+void StartEepromTask(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -134,6 +151,15 @@ void MX_FREERTOS_Init(void)
 
   /* creation of lcdTask */
   lcdTaskHandle = osThreadNew(StartLcdTask, NULL, &lcdTask_attributes);
+  
+  /* creation of keyQueue */
+  keyQueueHandle = osMessageQueueNew(10, sizeof(uint8_t), &keyQueue_attributes);
+
+  /* creation of eepromTask */
+  eepromTaskHandle = osThreadNew(StartEepromTask, NULL, &eepromTask_attributes);
+
+  /* creation of eepromQueue */
+  eepromQueueHandle = osMessageQueueNew(10, sizeof(uint8_t), &eepromQueue_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */

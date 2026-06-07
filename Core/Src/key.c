@@ -37,8 +37,9 @@ void Key_Process(void)
   static uint8_t key0_last = 1, key1_last = 1, key_up_last = 0;
   static uint8_t lcd_state = 1;
   static uint32_t key0_tick = 0, key1_tick = 0, key_up_tick = 0;
+  static uint8_t eeprom_cmd;
 
-  /* KEY0 — 按下翻转LED0 */
+  /* KEY0 — 按下触发 24C02 读取 */
   if (KEY0 != key0_last)
   {
     key0_tick = HAL_GetTick();
@@ -48,11 +49,12 @@ void Key_Process(void)
   {
     while (KEY0 == KEY0_PRESS)
       osDelay(5);
-    HAL_GPIO_TogglePin(LED0_GPIO_Port, LED0_Pin);
+    eeprom_cmd = 0x00;  /* 读命令 */
+    osMessageQueuePut(eepromQueueHandle, &eeprom_cmd, 0, 0);
     key0_tick = HAL_GetTick();
   }
 
-  /* KEY1 — 按下翻转LED1 */
+  /* KEY1 — 按下触发 24C02 写入 */
   if (KEY1 != key1_last)
   {
     key1_tick = HAL_GetTick();
@@ -62,7 +64,8 @@ void Key_Process(void)
   {
     while (KEY1 == KEY1_PRESS)
       osDelay(5);
-    HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
+    eeprom_cmd = 0x01;  /* 写命令 */
+    osMessageQueuePut(eepromQueueHandle, &eeprom_cmd, 0, 0);
     key1_tick = HAL_GetTick();
   }
 
