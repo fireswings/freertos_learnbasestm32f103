@@ -53,7 +53,7 @@ void StartLcdTask(void *argument)
         }
         else if (eeprom_op_result == 2)
         {
-            sprintf(buf, "24C02 Read: %d", eeprom_last_data);
+            sprintf(buf, "24C02 Read: %d  ", eeprom_last_data);
             lcd_show_string(10, y + 106, 220, 16, 12, buf, GREEN);
         }
         else if (eeprom_op_result == 0xFF)

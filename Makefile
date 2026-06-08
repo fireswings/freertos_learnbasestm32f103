@@ -51,7 +51,6 @@ Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.c \
 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c \
 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc_ex.c \
 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio.c \
-Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c \
 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_dma.c \
 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c \
 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_pwr.c \
@@ -70,6 +69,7 @@ Core/Src/ds18b20.c \
 Core/Src/dht11.c \
 Core/Src/app_temp.c \
 Core/Src/at24c02.c \
+Core/Src/iic.c \
 Core/Src/app_lcd.c \
 Core/Src/app_eeprom.c \
 Core/Src/can_drv.c \

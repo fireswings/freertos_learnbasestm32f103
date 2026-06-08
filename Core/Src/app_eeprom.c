@@ -42,14 +42,15 @@ void StartEepromTask(void *argument)
     (void)argument;
 
     /* 初始化 24C02 */
-    if (AT24C02_Init() != HAL_OK)
+    AT24C02_Init();
+    if (AT24C02_Check() != 0)
     {
-        printf("[EEPROM] AT24C02 init failed!\r\n");
+        printf("[EEPROM] AT24C02 check FAIL!\r\n");
         eeprom_op_result = 0xFF;
     }
     else
     {
-        printf("[EEPROM] AT24C02 init OK\r\n");
+        printf("[EEPROM] AT24C02 check OK\r\n");
     }
 
     uint8_t  cmd;
