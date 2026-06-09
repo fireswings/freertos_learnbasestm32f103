@@ -15,6 +15,31 @@
  */
 
 #include "iic.h"
+#include "cmsis_os2.h"
+
+/*============================================================================*/
+/* I2C 总线互斥锁                                                               */
+/*============================================================================*/
+
+static osMutexId_t iic_mutex = NULL;
+
+/**
+ * @brief  获取 I2C 总线锁 (阻塞直到可用)
+ */
+void IIC_Lock(void)
+{
+    if (iic_mutex != NULL)
+        osMutexAcquire(iic_mutex, osWaitForever);
+}
+
+/**
+ * @brief  释放 I2C 总线锁
+ */
+void IIC_Unlock(void)
+{
+    if (iic_mutex != NULL)
+        osMutexRelease(iic_mutex);
+}
 
 /*============================================================================*/
 /* 微秒延时 (DWT 周期计数器, 与 onewire.h 共用)                                  */
@@ -64,6 +89,10 @@ void IIC_Init(void)
     gpio.Mode  = GPIO_MODE_OUTPUT_OD;
     gpio.Pull  = GPIO_NOPULL;
     HAL_GPIO_Init(IIC_SDA_PORT, &gpio);
+
+    /* 创建 I2C 总线互斥锁 (仅首次初始化时创建) */
+    if (iic_mutex == NULL)
+        iic_mutex = osMutexNew(NULL);
 }
 
 /*============================================================================*/
