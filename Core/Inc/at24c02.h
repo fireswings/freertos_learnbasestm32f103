@@ -17,11 +17,17 @@
 /* API 声明                                                                    */
 /*============================================================================*/
 
-HAL_StatusTypeDef AT24C02_Init(void);
+typedef enum {
+    AT24C02_OK = 0,
+    AT24C02_ERR_NACK,
+    AT24C02_ERR_TIMEOUT
+} AT24C02_StatusTypeDef;
+
+AT24C02_StatusTypeDef AT24C02_Init(void);
 uint8_t           AT24C02_Check(void);
-HAL_StatusTypeDef AT24C02_WriteByte(uint8_t addr, uint8_t data);
+AT24C02_StatusTypeDef AT24C02_WriteByte(uint8_t addr, uint8_t data);
 uint8_t           AT24C02_ReadByte(uint8_t addr);
-HAL_StatusTypeDef AT24C02_WritePage(uint8_t addr, uint8_t *buf, uint8_t len);
-HAL_StatusTypeDef AT24C02_ReadSeq(uint8_t addr, uint8_t *buf, uint8_t len);
+AT24C02_StatusTypeDef AT24C02_WritePage(uint8_t addr, uint8_t *buf, uint8_t len);
+AT24C02_StatusTypeDef AT24C02_ReadSeq(uint8_t addr, uint8_t *buf, uint8_t len);
 
 #endif /* __AT24C02_H */

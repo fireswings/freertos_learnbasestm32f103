@@ -26,7 +26,7 @@ static osMutexId_t iic_mutex = NULL;
 /**
  * @brief  获取 I2C 总线锁 (阻塞直到可用)
  */
-void IIC_Lock(void)
+void IIC_MutexAcquire(void)
 {
     if (iic_mutex != NULL)
         osMutexAcquire(iic_mutex, osWaitForever);
@@ -35,7 +35,7 @@ void IIC_Lock(void)
 /**
  * @brief  释放 I2C 总线锁
  */
-void IIC_Unlock(void)
+void IIC_MutexRelease(void)
 {
     if (iic_mutex != NULL)
         osMutexRelease(iic_mutex);
@@ -142,7 +142,7 @@ void IIC_Stop(void)
  * @brief  等待从机 ACK (SDA 被从机拉低)
  * @retval 0=收到 ACK, 1=未收到 ACK (NACK 或超时)
  */
-uint8_t IIC_Wait_Ack(void)
+IIC_StatusTypeDef IIC_Wait_Ack(void)
 {
     uint16_t timeout = 0;
 
@@ -156,12 +156,12 @@ uint8_t IIC_Wait_Ack(void)
         if (++timeout > 250)
         {
             IIC_Stop();
-            return 1;     /* NACK / 超时 */
+            return IIC_TIMEOUT;     /* NACK / 超时 */
         }
     }
 
     IIC_SCL_L();
-    return 0;             /* ACK */
+    return IIC_OK;             /* ACK */
 }
 
 /*============================================================================*/
@@ -264,4 +264,66 @@ uint8_t IIC_Read_Byte(uint8_t ack)
         IIC_NAck();
 
     return data;
+}
+
+IIC_StatusTypeDef I2C_Write(uint8_t dev_addr, uint8_t reg, uint8_t *data, uint16_t len)
+{
+    IIC_MutexAcquire();
+
+    IIC_Start();
+    IIC_Send_Byte(dev_addr);
+    if (IIC_Wait_Ack()) goto fail;
+
+    IIC_Send_Byte(reg);
+    if (IIC_Wait_Ack()) goto fail;
+
+    for (int i = 0; i < len; i++) {
+        IIC_Send_Byte(data[i]);
+        if (IIC_Wait_Ack()) goto fail;
+    }
+
+    IIC_Stop();
+    IIC_MutexRelease();
+    return IIC_OK;
+
+fail:
+    IIC_Stop();
+    IIC_MutexRelease();
+    return IIC_TIMEOUT;
+}
+
+IIC_StatusTypeDef I2C_Read(uint8_t dev_addr, uint8_t reg,
+                           uint8_t *data, uint16_t len)
+{
+    IIC_MutexAcquire();
+
+    /* 写寄存器地址 */
+    IIC_Start();
+    IIC_Send_Byte(dev_addr & 0xFE);
+    if (IIC_Wait_Ack() != IIC_OK) goto fail;
+
+    IIC_Send_Byte(reg);
+    if (IIC_Wait_Ack() != IIC_OK) goto fail;
+
+    /* 读数据 */
+    IIC_Start();
+    IIC_Send_Byte(dev_addr | 0x01);
+    if (IIC_Wait_Ack() != IIC_OK) goto fail;
+
+    for (uint16_t i = 0; i < len; i++) {
+        if (i == len - 1) {
+            data[i] = IIC_Read_Byte(0); // 最后一个：NACK
+        } else {
+            data[i] = IIC_Read_Byte(1); // 其余：ACK
+        }
+    }
+
+    IIC_Stop();
+    IIC_MutexRelease();
+    return IIC_OK;
+
+fail:
+    IIC_Stop();
+    IIC_MutexRelease();
+    return IIC_TIMEOUT;
 }

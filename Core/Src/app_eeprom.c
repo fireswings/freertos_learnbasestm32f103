@@ -69,7 +69,7 @@ void StartEepromTask(void *argument)
         {
             /* KEY1: 写入递增计数器 */
             write_counter++;
-            if (AT24C02_WriteByte(0x00, write_counter) == HAL_OK)
+            if (AT24C02_WriteByte(0x00, write_counter) == AT24C02_OK)
             {
                 eeprom_last_data = write_counter;
                 eeprom_op_result = 1;  /* 写成功 */

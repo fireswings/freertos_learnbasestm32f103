@@ -22,14 +22,15 @@
 /* 初始化                                                                       */
 /*============================================================================*/
 
+
 /**
  * @brief  初始化 24C02 (软件 I2C GPIO)
- * @retval 始终返回 HAL_OK
+ * @retval 始终返回 AT24C02_OK
  */
-HAL_StatusTypeDef AT24C02_Init(void)
+AT24C02_StatusTypeDef AT24C02_Init(void)
 {
     IIC_Init();
-    return HAL_OK;
+    return AT24C02_OK;
 }
 
 /*============================================================================*/
@@ -45,33 +46,15 @@ HAL_StatusTypeDef AT24C02_Init(void)
  * 时序: START → 0xA0(W) → ACK → MemAddr → ACK → Data → ACK → STOP
  * 写入后等待 10ms 内部编程周期。
  */
-HAL_StatusTypeDef AT24C02_WriteByte(uint8_t addr, uint8_t data)
+AT24C02_StatusTypeDef AT24C02_WriteByte(uint8_t addr, uint8_t data)
 {
-    IIC_Lock();
+    IIC_StatusTypeDef ret;
 
-    IIC_Start();
+    ret = I2C_Write(AT24C02_DEV_ADDR_WRITE, addr, &data, 1);
+    if(ret == IIC_OK)
+        osDelay(10);   // 写周期
 
-    /* 发送设备地址 0xA0 (写) */
-    IIC_Send_Byte(AT24C02_DEV_ADDR_WRITE);
-    if (IIC_Wait_Ack())
-        { IIC_Unlock(); return HAL_ERROR; }
-
-    /* 发送内存地址 */
-    IIC_Send_Byte(addr);
-    if (IIC_Wait_Ack())
-        { IIC_Unlock(); return HAL_ERROR; }
-
-    /* 发送数据 */
-    IIC_Send_Byte(data);
-    if (IIC_Wait_Ack())
-        { IIC_Unlock(); return HAL_ERROR; }
-
-    IIC_Stop();
-    IIC_Unlock();
-
-    osDelay(10);  /* 内部写入周期 (安全起见用 10ms, 在锁外等待) */
-
-    return HAL_OK;
+    return ret == IIC_OK ? AT24C02_OK : AT24C02_ERR_NACK;
 }
 
 /*============================================================================*/
@@ -92,36 +75,12 @@ HAL_StatusTypeDef AT24C02_WriteByte(uint8_t addr, uint8_t data)
 uint8_t AT24C02_ReadByte(uint8_t addr)
 {
     uint8_t data;
+    IIC_StatusTypeDef ret;
 
-    IIC_Lock();
-
-    /* Phase 1: Dummy Write — 发送内存地址 */
-    IIC_Start();
-    IIC_Send_Byte(AT24C02_DEV_ADDR_WRITE);   /* 0xA0, 写 */
-    if (IIC_Wait_Ack())
-    {
-        IIC_Unlock();
+    ret = I2C_Read(AT24C02_DEV_ADDR_READ, addr, &data, 1);
+    if(ret != IIC_OK)
         return 0xFF;
-    }
-    IIC_Send_Byte(addr);
-    if (IIC_Wait_Ack())
-    {
-        IIC_Unlock();
-        return 0xFF;
-    }
-
-    /* Phase 2: 重新起始 + 读 */
-    IIC_Start();
-    IIC_Send_Byte(AT24C02_DEV_ADDR_READ);    /* 0xA1, 读 */
-    if (IIC_Wait_Ack())
-    {
-        IIC_Unlock();
-        return 0xFF;
-    }
-    data = IIC_Read_Byte(0);   /* 读 1 字节, NACK 结束 */
-    IIC_Stop();
-
-    IIC_Unlock();
+    
     return data;
 }
 
@@ -145,7 +104,7 @@ uint8_t AT24C02_Check(void)
         return 0;   /* 之前写入过, 正常 */
 
     /* 首次上电: 写入测试 */
-    if (AT24C02_WriteByte(255, 0x55) != HAL_OK)
+    if (AT24C02_WriteByte(255, 0x55) != AT24C02_OK)
         return 1;
 
     temp = AT24C02_ReadByte(255);
@@ -166,7 +125,7 @@ uint8_t AT24C02_Check(void)
  * @param  len   写入长度
  * @retval HAL status
  */
-HAL_StatusTypeDef AT24C02_WritePage(uint8_t addr, uint8_t *buf, uint8_t len)
+AT24C02_StatusTypeDef AT24C02_WritePage(uint8_t addr, uint8_t *buf, uint8_t len)
 {
     uint8_t offset = 0;
 
@@ -176,22 +135,22 @@ HAL_StatusTypeDef AT24C02_WritePage(uint8_t addr, uint8_t *buf, uint8_t len)
         uint8_t page_remain = AT24C02_PAGE_SIZE - (addr % AT24C02_PAGE_SIZE);
         uint8_t chunk = (len - offset) < page_remain ? (len - offset) : page_remain;
 
-        IIC_Lock();
+        IIC_MutexAcquire();
 
         IIC_Start();
         IIC_Send_Byte(AT24C02_DEV_ADDR_WRITE);
-        if (IIC_Wait_Ack()) { IIC_Unlock(); return HAL_ERROR; }
+        if (IIC_Wait_Ack() != IIC_OK) { IIC_MutexRelease(); return AT24C02_ERR_NACK; }
         IIC_Send_Byte(addr);
-        if (IIC_Wait_Ack()) { IIC_Unlock(); return HAL_ERROR; }
+        if (IIC_Wait_Ack() != IIC_OK) { IIC_MutexRelease(); return AT24C02_ERR_NACK; }
 
         for (uint8_t i = 0; i < chunk; i++)
         {
             IIC_Send_Byte(buf[offset + i]);
-            if (IIC_Wait_Ack()) { IIC_Unlock(); return HAL_ERROR; }
+            if (IIC_Wait_Ack() != IIC_OK) { IIC_MutexRelease(); return AT24C02_ERR_NACK; }
         }
 
         IIC_Stop();
-        IIC_Unlock();
+        IIC_MutexRelease();
 
         osDelay(10);
 
@@ -199,7 +158,7 @@ HAL_StatusTypeDef AT24C02_WritePage(uint8_t addr, uint8_t *buf, uint8_t len)
         offset  += chunk;
     }
 
-    return HAL_OK;
+    return AT24C02_OK;
 }
 
 /*============================================================================*/
@@ -213,23 +172,23 @@ HAL_StatusTypeDef AT24C02_WritePage(uint8_t addr, uint8_t *buf, uint8_t len)
  * @param  len   读取长度
  * @retval HAL status
  */
-HAL_StatusTypeDef AT24C02_ReadSeq(uint8_t addr, uint8_t *buf, uint8_t len)
+AT24C02_StatusTypeDef AT24C02_ReadSeq(uint8_t addr, uint8_t *buf, uint8_t len)
 {
     uint8_t i;
 
-    IIC_Lock();
+    IIC_MutexAcquire();
 
     /* Phase 1: Dummy Write — 发送起始地址 */
     IIC_Start();
     IIC_Send_Byte(AT24C02_DEV_ADDR_WRITE);
-    if (IIC_Wait_Ack()) { IIC_Unlock(); return HAL_ERROR; }
+    if (IIC_Wait_Ack() != IIC_OK) { IIC_MutexRelease(); return AT24C02_ERR_NACK; }
     IIC_Send_Byte(addr);
-    if (IIC_Wait_Ack()) { IIC_Unlock(); return HAL_ERROR; }
+    if (IIC_Wait_Ack() != IIC_OK) { IIC_MutexRelease(); return AT24C02_ERR_NACK; }
 
     /* Phase 2: 读 */
     IIC_Start();
     IIC_Send_Byte(AT24C02_DEV_ADDR_READ);
-    if (IIC_Wait_Ack()) { IIC_Unlock(); return HAL_ERROR; }
+    if (IIC_Wait_Ack() != IIC_OK) { IIC_MutexRelease(); return AT24C02_ERR_NACK; }
 
     for (i = 0; i < len - 1; i++)
     {
@@ -238,6 +197,6 @@ HAL_StatusTypeDef AT24C02_ReadSeq(uint8_t addr, uint8_t *buf, uint8_t len)
     buf[i] = IIC_Read_Byte(0);      /* NACK: 结束读取 */
     IIC_Stop();
 
-    IIC_Unlock();
-    return HAL_OK;
+    IIC_MutexRelease();
+    return AT24C02_OK;
 }

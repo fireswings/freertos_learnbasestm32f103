@@ -34,12 +34,19 @@
 #define IIC_SDA_L()   (IIC_SDA_PORT->BRR  = IIC_SDA_PIN)
 #define IIC_SDA_IN()  ((IIC_SDA_PORT->IDR & IIC_SDA_PIN) ? 1 : 0)
 
+typedef enum {
+    IIC_OK = 0,
+    IIC_NACK,
+    IIC_TIMEOUT
+} IIC_StatusTypeDef;
+
+
 /*============================================================================*/
 /* I2C 总线互斥锁 (保护软件 I2C 不被多任务并发访问)                               */
 /*============================================================================*/
 
-void IIC_Lock(void);
-void IIC_Unlock(void);
+void IIC_MutexAcquire(void);
+void IIC_MutexRelease(void);
 
 /*============================================================================*/
 /* API                                                                         */
@@ -48,10 +55,12 @@ void IIC_Unlock(void);
 void    IIC_Init(void);
 void    IIC_Start(void);
 void    IIC_Stop(void);
-uint8_t IIC_Wait_Ack(void);
+IIC_StatusTypeDef IIC_Wait_Ack(void);
 void    IIC_Ack(void);
 void    IIC_NAck(void);
 void    IIC_Send_Byte(uint8_t data);
 uint8_t IIC_Read_Byte(uint8_t ack);
+IIC_StatusTypeDef I2C_Write(uint8_t dev_addr, uint8_t reg, uint8_t *data, uint16_t len);
+IIC_StatusTypeDef I2C_Read(uint8_t dev_addr, uint8_t reg, uint8_t *data, uint16_t len);
 
 #endif /* __IIC_H */
