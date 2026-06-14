@@ -252,6 +252,7 @@ g_pfnVectors:
   .word 0
   .word BootRAM       /* @0x1E0. This is for boot in RAM mode for
                          STM32F10x High Density devices. */
+  .word 0x00000000
 
 /*******************************************************************************
 *
